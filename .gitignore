@@ -1,0 +1,14 @@
+# Go
+/bin/
+/pkg/
+/vendor/
+
+# IDE
+.vscode/
+.idea/
+
+# Env
+.env
+
+# Logs
+*.log
