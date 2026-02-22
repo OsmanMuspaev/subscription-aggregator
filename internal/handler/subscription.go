@@ -17,7 +17,17 @@ func NewSubscriptionHandler(repo *repository.SubscriptionRepo) *SubscriptionHand
 	return &SubscriptionHandler{Repo: repo}
 }
 
-// POST /subscriptions
+// Create Subscription
+// @Summary Create subscription
+// @Description Create a new subscription
+// @Tags subscriptions
+// @Accept json
+// @Produce json
+// @Param subscription body model.Subscription true "Subscription info"
+// @Success 201 {object} model.Subscription
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /subscriptions [post]
 func (h *SubscriptionHandler) Create(c *gin.Context) {
 	var sub model.Subscription
 	if err := c.BindJSON(&sub); err != nil {
@@ -49,7 +59,17 @@ func (h *SubscriptionHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, sub)
 }
 
-// GET /subscriptions
+// List Subscriptions
+// @Summary List subscriptions
+// @Description Get all subscriptions with optional filtering
+// @Tags subscriptions
+// @Accept json
+// @Produce json
+// @Param user_id query string false "User ID"
+// @Param service_name query string false "Service Name"
+// @Success 200 {array} model.Subscription
+// @Failure 500 {object} map[string]string
+// @Router /subscriptions [get]
 func (h *SubscriptionHandler) List(c *gin.Context) {
 	userID := c.Query("user_id")
 	serviceName := c.Query("service_name")
@@ -62,7 +82,19 @@ func (h *SubscriptionHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, subs)
 }
 
-// GET /subscriptions/summary
+// Summary Subscriptions
+// @Summary Sum subscriptions
+// @Description Get total subscription cost for a period
+// @Tags subscriptions
+// @Accept json
+// @Produce json
+// @Param user_id query string false "User ID"
+// @Param service_name query string false "Service Name"
+// @Param from query string true "Start month YYYY-MM"
+// @Param to query string true "End month YYYY-MM"
+// @Success 200 {object} map[string]int
+// @Failure 500 {object} map[string]string
+// @Router /subscriptions/summary [get]
 func (h *SubscriptionHandler) Summary(c *gin.Context) {
 	userID := c.Query("user_id")
 	serviceName := c.Query("service_name")
