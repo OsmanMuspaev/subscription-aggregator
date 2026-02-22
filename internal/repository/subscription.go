@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -24,8 +25,19 @@ func (r *SubscriptionRepo) Create(sub *model.Subscription) error {
 
 	_, err := db.Pool.Exec(context.Background(),
 		`INSERT INTO subscriptions (id, service_name, price, user_id, start_date, end_date)
-		 VALUES ($1, $2, $3, $4, $5, $6)`,
-		sub.ID, sub.ServiceName, sub.Price, sub.UserID, sub.StartDate, sub.EndDate)
+		VALUES ($1, $2, $3, $4, $5, $6)`,
+		sub.ID,
+		sub.ServiceName,
+		sub.Price,
+		sub.UserID,
+		sub.StartDate.Format("2006-01-02"),
+		func() interface{} {
+			if sub.EndDate != nil {
+				return sub.EndDate.Format("2006-01-02")
+			}
+			return nil
+		}(),
+	)
 	return err
 }
 
@@ -66,12 +78,12 @@ func (r *SubscriptionRepo) List(userID, serviceName string) ([]*model.Subscripti
 	i := 1
 
 	if userID != "" {
-		query += ` AND user_id=$` + string(rune(i))
+		query += fmt.Sprintf(" AND user_id=$%d", i)
 		args = append(args, userID)
 		i++
 	}
 	if serviceName != "" {
-		query += ` AND service_name=$` + string(rune(i))
+		query += fmt.Sprintf(" AND service_name=$%d", i)
 		args = append(args, serviceName)
 		i++
 	}

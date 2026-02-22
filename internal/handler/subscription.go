@@ -25,15 +25,27 @@ func (h *SubscriptionHandler) Create(c *gin.Context) {
 		return
 	}
 
-	start, err := time.Parse("01-2006", sub.StartDate.Format("01-2006"))
-	if err == nil {
-		sub.StartDate = start
+	start, err := time.Parse("2006-01-02", sub.StartDateStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid start_date format, use YYYY-MM-DD"})
+		return
+	}
+	sub.StartDate = start
+
+	if sub.EndDateStr != nil && *sub.EndDateStr != "" {
+		end, err := time.Parse("2006-01-02", *sub.EndDateStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid end_date format, use YYYY-MM-DD"})
+			return
+		}
+		sub.EndDate = &end
 	}
 
 	if err := h.Repo.Create(&sub); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusCreated, sub)
 }
 
